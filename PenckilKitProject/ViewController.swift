@@ -35,12 +35,43 @@ class ViewController: UIViewController, PKCanvasViewDelegate, PKToolPickerObserv
         
     }
     
+    override var prefersHomeIndicatorAutoHidden: Bool {
+        return true
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let canvasScale = canvasView.bounds.width / canvasWidth
+        canvasView.minimumZoomScale = canvasScale
+        canvasView.maximumZoomScale = canvasScale
+        canvasView.zoomScale = canvasScale
+        updateContentSizeForDrawing()
+        canvasView.contentOffset = CGPoint(x: 0, y: -canvasView.adjustedContentInset.top)
+    }
+    
     @IBAction func saveImagePressed(_ sender: UIBarButtonItem) {
         
     }
     
     @IBAction func selectStylusType(_ sender: UIBarButtonItem) {
+        canvasView.allowsFingerDrawing.toggle()
+        pencilBarButtonItem.title = canvasView.allowsFingerDrawing ? "Finger" : "Pencil"
+    }
+    
+    func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
+        updateContentSizeForDrawing()
+    }
+    
+    func updateContentSizeForDrawing() {
+        let drawing = canvasView.drawing
+        let contentHeight: CGFloat
         
+        if !drawing.bounds.isNull {
+            contentHeight = max(canvasView.bounds.height, (drawing.bounds.maxY + self.canvasOverscrollingHeight) * canvasView.zoomScale)
+        } else {
+            contentHeight = canvasView.bounds.height
+        }
+        canvasView.contentSize = CGSize(width: canvasWidth * canvasView.zoomScale, height: contentHeight)
     }
     
 }
