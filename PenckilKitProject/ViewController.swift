@@ -7,6 +7,7 @@
 
 import UIKit
 import PencilKit
+import PhotosUI
 
 class ViewController: UIViewController, PKCanvasViewDelegate, PKToolPickerObserver {
 
@@ -50,7 +51,19 @@ class ViewController: UIViewController, PKCanvasViewDelegate, PKToolPickerObserv
     }
     
     @IBAction func saveImagePressed(_ sender: UIBarButtonItem) {
+        UIGraphicsBeginImageContextWithOptions(canvasView.bounds.size, false, UIScreen.main.scale)
         
+        canvasView.drawHierarchy(in: canvasView.bounds, afterScreenUpdates: true)
+        
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        if image != nil {
+            PHPhotoLibrary.shared().performChanges({PHAssetChangeRequest.creationRequestForAsset(from: image!)}, completionHandler: {success, error in
+                // deal with success
+                
+            })
+        }
     }
     
     @IBAction func selectStylusType(_ sender: UIBarButtonItem) {
